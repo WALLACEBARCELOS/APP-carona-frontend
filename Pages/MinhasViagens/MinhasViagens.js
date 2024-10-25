@@ -1,36 +1,29 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Animated, Easing } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, Animated, Easing, StyleSheet } from 'react-native';
+import api from '../../Api/Api'; // Ajuste o caminho para o arquivo da sua configuração da API
 
 const MyTripsScreen = () => {
-  // Estado para armazenar as viagens já realizadas
-  const [trips, setTrips] = useState([
-    {
-      id: '1',
-      departure: 'São Paulo',
-      destination: 'Rio de Janeiro',
-      date: '2024-08-20',
-      passengers: 3,
-    },
-    {
-      id: '2',
-      departure: 'Belo Horizonte',
-      destination: 'Curitiba',
-      date: '2024-07-15',
-      passengers: 2,
-    },
-    {
-      id: '3',
-      departure: 'Porto Alegre',
-      destination: 'Florianópolis',
-      date: '2024-06-10',
-      passengers: 4,
-    },
-  ]);
-
-  // Animação de entrada dos itens na lista
+  const [trips, setTrips] = useState([]);
+  const [loading, setLoading] = useState(true);
   const itemAnim = useState(new Animated.Value(0))[0];
 
-  React.useEffect(() => {
+  useEffect(() => {
+    // Função para buscar as viagens da API
+    const fetchTrips = async () => {
+      try {
+        const response = await api.get('/viagens');
+        console.log('Viagens recebidas:', response.data); // Adicionado para depuração
+        setTrips(response.data);
+      } catch (error) {
+        console.error('Erro ao buscar viagens:', error.response ? error.response.data : error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTrips(); // Chama a função para buscar as viagens
+
+    // Animação de entrada dos itens na lista
     Animated.timing(itemAnim, {
       toValue: 1,
       duration: 1000,
@@ -54,12 +47,21 @@ const MyTripsScreen = () => {
   // Renderização de cada item da lista de viagens
   const renderItem = ({ item }) => (
     <Animated.View style={[styles.tripItem, itemStyle]}>
-      <Text style={styles.tripText}>De: {item.departure}</Text>
-      <Text style={styles.tripText}>Para: {item.destination}</Text>
-      <Text style={styles.tripText}>Data: {item.date}</Text>
-      <Text style={styles.tripText}>Passageiros: {item.passengers}</Text>
+      <Text style={styles.tripText}>De: {item.origem || 'Desconhecido'}</Text>
+      <Text style={styles.tripText}>Para: {item.destino || 'Desconhecido'}</Text>
+      <Text style={styles.tripText}>Data: {new Date(item.horarioPartida).toLocaleString() || 'Desconhecido'}</Text>
+      <Text style={styles.tripText}>Preço: R$ {item.preco / 100 || 'Desconhecido'}</Text>
+      <Text style={styles.tripText}>Reservas: {item.reservas.length || 0}</Text>
     </Animated.View>
   );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Carregando viagens...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -68,7 +70,7 @@ const MyTripsScreen = () => {
         <FlatList
           data={trips}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.listContainer}
         />
       ) : (
@@ -91,6 +93,15 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     color: '#00d8ff',
     textAlign: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: '#00d8ff',
+    fontSize: 18,
   },
   listContainer: {
     paddingBottom: 20,

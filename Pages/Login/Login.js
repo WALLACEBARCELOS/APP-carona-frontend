@@ -1,18 +1,30 @@
-import React, { useRef, useEffect, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Animated, Easing, Keyboard, TouchableWithoutFeedback } from 'react-native';
-import { AuthContext } from '../../VerificarAutenticacao';  
-
+import React, { useRef, useEffect, useContext, useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Animated, Easing, Keyboard, TouchableWithoutFeedback, Alert } from 'react-native';
+import { AuthContext } from '../../AuthContext'; // Importa o AuthContext
+import { api, loginUser } from '../../Api/Api';
 
 const Login = ({ navigation }) => {
   const titleAnim = useRef(new Animated.Value(0)).current;
   const inputAnim = useRef(new Animated.Value(0)).current;
   const buttonAnim = useRef(new Animated.Value(0)).current;
-  const { login } = useContext(AuthContext);  
 
-  const handleLogin = () => {
-    login();
-    navigation.navigate('SolicitarCarona'); 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { loginUser: login } = useContext(AuthContext); // Aqui você acessa o loginUser
+
+
+  const handleLogin = async () => {
+    console.log("E-mail sendo enviado:", email);
+    try {
+      const token = await login(email, password); // Chama a função loginUser
+      navigation.navigate('SolicitarCarona'); // Navega para a tela inicial após o login
+    } catch (error) {
+      console.error("Erro ao fazer login:", error); // Loga o erro
+      Alert.alert('Erro de autenticação', 'Usuário ou senha inválidos');
+    }
   };
+  
+
 
   useEffect(() => {
     Animated.parallel([
@@ -82,19 +94,22 @@ const Login = ({ navigation }) => {
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <View style={styles.container}>
-         
         <Animated.Text style={[styles.title, titleStyle]}>UNICAR</Animated.Text>
         <Animated.View style={[styles.inputContainer, inputStyle]}>
           <TextInput
             style={styles.input}
             placeholder="Email"
             placeholderTextColor="#d0d0d0"
+            value={email} // Vincula o valor do input ao estado
+            onChangeText={setEmail} // Atualiza o estado ao digitar
           />
           <TextInput
             style={styles.input}
             placeholder="Senha"
             placeholderTextColor="#d0d0d0"
             secureTextEntry
+            value={password} // Vincula o valor do input ao estado
+            onChangeText={setPassword} // Atualiza o estado ao digitar
           />
         </Animated.View>
         <Animated.View style={[styles.buttonContainer, buttonStyle]}>
@@ -117,11 +132,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#1e1e1e',
     padding: 20,
-  },
-  logo: {
-    width: 150,
-    height: 150,
-    marginBottom: 30,
   },
   title: {
     fontSize: 36,

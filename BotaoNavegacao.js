@@ -18,15 +18,19 @@ const BotaoNavegacao = () => {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
+          // Definição dos ícones com base na rota
           if (route.name === 'Login') {
             iconName = focused ? 'log-in' : 'log-in-outline';
           } else if (route.name === 'Cadastro') {
             iconName = focused ? 'person-add' : 'person-add-outline';
           } else if (route.name === 'SolicitarCarona') {
             iconName = focused ? 'search' : 'search-outline'; 
-          }
-           else if (route.name === 'OferecerCarona') {
-            iconName = focused ? 'person-add' : 'person-add-outline';
+          } else if (route.name === 'OferecerCarona') {
+            iconName = focused ? 'add-circle' : 'add-circle-outline'; // Corrigido para ícone de círculo
+          } else if (route.name === 'MinhasViagens') {
+            iconName = focused ? 'car-sport' : 'car-sport-outline'; // Ícone de viagens
+          } else if (route.name === 'Perfil') {
+            iconName = focused ? 'person' : 'person-outline'; // Ícone de perfil
           }
 
           return <Icon name={iconName} size={size} color={color} />;
@@ -43,7 +47,7 @@ const BotaoNavegacao = () => {
     >
       <Tab.Screen name="Login" component={Login} />
       <Tab.Screen name="Cadastro" component={Cadastro} />
-      <Tab.Screen name="Buscar Carona" component={SolicitarCarona} />
+      <Tab.Screen name="Solicitar Carona" component={SolicitarCarona} />
       <Tab.Screen name="OferecerCarona" component={OferecerCarona} />
       <Tab.Screen name="MinhasViagens" component={MinhasViagens} />
       <Tab.Screen name="Perfil" component={Perfil} />

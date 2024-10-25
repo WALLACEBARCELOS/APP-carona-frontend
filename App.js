@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { AuthContext, AuthProvider } from './VerificarAutenticacao';
+import { AuthContext, AuthProvider } from './AuthContext';
 
 // Importando telas
 import Login from './Pages/Login/Login';

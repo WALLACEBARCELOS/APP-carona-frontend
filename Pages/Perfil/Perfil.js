@@ -1,13 +1,18 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Animated, Easing, Platform, ScrollView } from 'react-native';
+import React, { useEffect, useState, useContext } from 'react';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Animated, Easing, ScrollView, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../../AuthContext'; // Certifique-se de que o caminho esteja correto
 
 const Perfil = () => {
+  const navigation = useNavigation(); // Hook para navegação
+  const { logoutUser } = useContext(AuthContext); // Obtendo a função logout do contexto
 
-  const profileImageAnim = React.useState(new Animated.Value(0))[0];
-  const buttonAnim = React.useState(new Animated.Value(0))[0];
+  const [profileImageAnim] = useState(new Animated.Value(0));
+  const [buttonAnim] = useState(new Animated.Value(0));
 
-  React.useEffect(() => {
+  useEffect(() => {
     Animated.parallel([
       Animated.timing(profileImageAnim, {
         toValue: 1,
@@ -49,11 +54,21 @@ const Perfil = () => {
     ],
   };
 
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('authToken'); // Limpa o token
+    await logoutUser();
+    Alert.alert('Logout', 'Você foi desconectado com sucesso!', [
+      {
+        text: 'OK',
+      },
+    ]);
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Animated.View style={[styles.profileImageContainer, profileImageStyle]}>
         <Image
-          source={{ uri: 'https://www.example.com/profile.jpg' }} // Substitua pelo URL da imagem de perfil
+          source={{ uri: 'https://media.licdn.com/dms/image/v2/D4D03AQEwL2KktVTxJA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1706042815499?e=1730332800&v=beta&t=f7AjfAkaOl1GkZ4qwfotkyrF4jLb86vWA2-oveidchE' }}
           style={styles.profileImage}
         />
       </Animated.View>
@@ -93,6 +108,11 @@ const Perfil = () => {
         <TouchableOpacity style={styles.button}>
           <Icon name="settings" size={24} color="#fff" />
           <Text style={styles.buttonText}>Configurações</Text>
+        </TouchableOpacity>
+        {/* Botão de Logout */}
+        <TouchableOpacity style={styles.button} onPress={handleLogout}>
+          <Icon name="log-out" size={24} color="#fff" />
+          <Text style={styles.buttonText}>Sair</Text>
         </TouchableOpacity>
       </Animated.View>
     </ScrollView>
